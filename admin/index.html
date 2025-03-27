@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="icon" type="image/png" href="OSAS LOGO.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f4f4f4 0%, #e0e0e0 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-control {
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .btn-login {
+            background-color: #4CAF50;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-login:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        #loginResult {
+            margin-top: 1rem;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .login-header {
+            position: relative;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .login-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background-color: #4CAF50;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 1.5rem;
+            }
+            .btn-login {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2 class="text-center mb-0">Admin Login</h2>
+        </div>
+        <form onsubmit="event.preventDefault(); login();">
+            <div class="mb-4">
+                <input type="text" class="form-control" id="adminUsername" placeholder="Username" required>
+            </div>
+            <div class="mb-4">
+                <input type="password" class="form-control" id="adminPassword" placeholder="Password" required>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-login text-white">Login</button>
+            </div>
+            <div id="loginResult" class="text-danger text-center"></div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxDoSEBw6PylXZly7DW7-Wja6i0j2i_S_KihYiPQJse4HSnyhRhIiywVK3c7GuB2AcQ/exec';
+        const DASHBOARD_URL = 'dashboard.html';
+
+        // Check if already logged in and redirect to dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                window.location.replace(DASHBOARD_URL);
+            }
+        });
+
+        // Authentication check function
+        function checkAuth() {
+            const authToken = localStorage.getItem('authToken');
+            const loginTime = localStorage.getItem('loginTime');
+            const currentTime = new Date().getTime();
+            const sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+            return authToken === 'loggedIn' && loginTime && (currentTime - loginTime <= sessionTimeout);
+        }
+
+        function login() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            const resultDiv = document.getElementById('loginResult');
+
+            if (!username || !password) {
+                resultDiv.className = 'text-center text-danger';
+                resultDiv.innerText = 'Please enter both username and password.';
+                return;
+            }
+
+            resultDiv.innerText = 'Logging in...';
+            resultDiv.className = 'text-center text-muted';
+
+            // Remove any existing script to prevent duplicates
+            const existingScript = document.getElementById('login-script');
+            if (existingScript) existingScript.remove();
+
+            // Create JSONP script
+            const script = document.createElement('script');
+            script.id = 'login-script';
+            script.src = `${GAS_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&callback=handleLoginResponse`;
+            script.onerror = () => {
+                resultDiv.className = 'text-center text-danger';
+                resultDiv.innerText = 'Network error. Please check your connection or try again later.';
+                console.error('JSONP script failed to load');
+            };
+            document.head.appendChild(script);
+        }
+
+        // JSONP callback function
+        window.handleLoginResponse = function(data) {
+            const resultDiv = document.getElementById('loginResult');
+            if (data && data.success) {
+                localStorage.setItem('authToken', 'loggedIn');
+                localStorage.setItem('userPosition', data.position || 'admin');
+                localStorage.setItem('loggedInUser', data.username);
+                localStorage.setItem('loginTime', new Date().getTime());
+                resultDiv.className = 'text-center text-success';
+                resultDiv.innerText = 'Login successful! Redirecting...';
+                setTimeout(() => {
+                    window.location.replace(DASHBOARD_URL);
+                }, 1000);
+            } else {
+                resultDiv.className = 'text-center text-danger';
+                resultDiv.innerText = data && data.message ? data.message : 'Login failed. Check credentials or server response.';
+                console.error('Login failed:', data);
+            }
+        };
+
+        // Prevent back navigation to dashboard after logout
+        window.addEventListener('load', function() {
+            if (checkAuth()) {
+                window.location.replace(DASHBOARD_URL);
+            } else {
+                window.history.pushState(null, null, 'index.html');
+            }
+        });
+
+        window.addEventListener('popstate', function() {
+            if (checkAuth()) {
+                window.location.replace(DASHBOARD_URL);
+            }
+        });
+
+        window.onpageshow = function(event) {
+            if (event.persisted && checkAuth()) {
+                window.location.replace(DASHBOARD_URL);
+            }
+        };
+    </script>
+</body>
+</html>

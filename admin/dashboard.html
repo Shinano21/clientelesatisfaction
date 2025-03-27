@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="OSAS LOGO.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <title>Feedback Dashboard</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 999;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .navbar {
+      background: linear-gradient(90deg, #343a40, #495057);
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 1001;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .navbar-brand h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: white;
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-brand:hover h1 {
+      transform: scale(1.05);
+    }
+
+    .toggle-btn {
+      color: white;
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-btn:hover {
+      transform: rotate(90deg);
+    }
+
+    .datetime {
+      color: white;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100%;
+      background: #ffffff;
+      box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+      transition: left 0.3s ease;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar-header {
+      padding: 1.75rem 1.5rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid #eee;
+    }
+
+    .sidebar ul {
+      padding: 1.5rem;
+      margin: 0;
+      list-style: none;
+    }
+
+    .sidebar ul li {
+      margin: 0.75rem 0;
+    }
+
+    .sidebar ul li a {
+      color: #333;
+      padding: 0.85rem 1.25rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .sidebar ul li a i {
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+      background-color: #007bff;
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .main-content {
+      padding: 2.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-content.sidebar-active {
+      margin-left: 280px;
+    }
+
+    .table-container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .filter-container {
+      gap: 1.5rem;
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .filter-group select,
+    #searchInput {
+      transition: all 0.3s ease;
+    }
+
+    .filter-group select:focus,
+    #searchInput:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0,123,255,0.3);
+    }
+
+    .proposal-table th {
+      background: #f2f2f2;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 1rem;
+    }
+
+    .proposal-table tr {
+      transition: background-color 0.2s ease;
+    }
+
+    .proposal-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .modal {
+      animation: fadeInModal 0.3s ease-out;
+    }
+
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+      padding: 1.5rem;
+    }
+
+    .modal.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-button {
+      transition: all 0.3s ease;
+      margin: 0.5rem;
+    }
+
+    .modal-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 260px;
+        left: -260px;
+      }
+
+      .main-content {
+        padding: 1.5rem;
+      }
+
+      .main-content.sidebar-active {
+        margin-left: 260px;
+      }
+
+      .filter-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .navbar-brand h1 {
+        font-size: 1.2rem;
+      }
+
+      .toggle-btn {
+        font-size: 1.3rem;
+      }
+
+      .table-container {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .table-container {
+        padding: 1rem;
+      }
+
+      .proposal-table {
+        font-size: 0.85rem;
+      }
+
+      .navbar {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-brand">
+      <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+      <h1>Feedback Dashboard</h1>
+    </div>
+    <div class="datetime" id="datetime"></div>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3 style="margin: 0; color: #333;">Menu</h3>
+    </div>
+    <ul class="list-unstyled">
+      <li><a href="dashboard.html" data-page="dashboard.html"><i class="bi bi-house-door"></i> Dashboard</a></li>
+      <li><a href="report.html" data-page="report.html"><i class="bi bi-bar-chart"></i> Report</a></li>
+      <li><a href="feedback.html" data-page="feedback.html"><i class="bi bi-chat-dots"></i> Feedback</a></li>
+      <li><a href="#" onclick="showSheetsModal()" data-page="sheets"><i class="bi bi-table"></i> Sheets</a></li>
+      <li><a href="#" class="logout-btn" onclick="showLogoutModal()"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+    </ul>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="main-content">
+    <div class="table-container">
+      <div class="filter-container d-flex flex-wrap">
+        <div class="filter-group">
+          <label class="fw-bold mb-1" for="monthFilter">Month:</label>
+          <select id="monthFilter" class="form-select" onchange="filterFeedback()">
+            <option value="">All</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="fw-bold mb-1" for="yearFilter">Year:</label>
+          <select id="yearFilter" class="form-select" onchange="filterFeedback()">
+            <option value="">All</option>
+            <script>
+              for (let year = 2020; year <= new Date().getFullYear(); year++) {
+                document.write(`<option value="${year}">${year}</option>`);
+              }
+            </script>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="fw-bold mb-1" for="guestTypeFilter">Guest Type:</label>
+          <select id="guestTypeFilter" class="form-select" onchange="filterFeedback()">
+            <option value="">All</option>
+            <option value="Student">Student</option>
+            <option value="Parent">Parent</option>
+            <option value="BU employee">BU Employee</option>
+            <option value="Visitor">Visitor</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-4">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by Name, Contact, Purpose, or Comments" onkeyup="filterFeedback()">
+      </div>
+      <div class="table-responsive">
+        <table class="proposal-table table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Name</th>
+              <th>Guest Type</th>
+              <th>Purpose</th>
+              <th>Quality</th>
+              <th>Attitude</th>
+              <th>Comments</th>
+            </tr>
+          </thead>
+          <tbody id="feedbackTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <p class="mb-4">Are you sure you want to logout?</p>
+      <div class="modal-buttons">
+        <button class="modal-button confirm-btn btn btn-danger" onclick="performLogout()">Yes</button>
+        <button class="modal-button cancel-btn btn btn-secondary" onclick="hideLogoutModal()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sheets Access Modal -->
+  <div id="sheetsModal" class="modal">
+    <div class="modal-content">
+      <p class="mb-2">Please contact your local administrator for access to the Sheets:</p>
+      <p class="mb-1"><strong>Email:</strong> admin@example.com</p>
+      <p class="mb-4"><strong>Mobile Number:</strong> 123-456-7890</p>
+      <div class="modal-buttons">
+        <button class="modal-button cancel-btn btn btn-secondary" onclick="hideSheetsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxDoSEBw6PylXZly7DW7-Wja6i0j2i_S_KihYiPQJse4HSnyhRhIiywVK3c7GuB2AcQ/exec';
+    const LOGIN_URL = 'index.html';
+    let allFeedback = [];
+
+    // Authentication check function
+    function checkAuth() {
+      const authToken = localStorage.getItem('authToken');
+      const loginTime = localStorage.getItem('loginTime');
+      const currentTime = new Date().getTime();
+      const sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+      if (!authToken || !loginTime || (currentTime - loginTime > sessionTimeout)) {
+        localStorage.clear();
+        window.location.replace(LOGIN_URL);
+        return false;
+      }
+      return true;
+    }
+
+    // Run auth check on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!checkAuth()) {
+        return;
+      }
+    });
+
+    window.onload = function() {
+      if (!checkAuth()) return;
+      const currentMonth = new Date().getMonth() + 1;
+      document.getElementById('monthFilter').value = currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`;
+      fetchFeedback();
+      updateDateTime();
+      setInterval(updateDateTime, 1000);
+      setActiveSidebarItem();
+    };
+
+    function updateDateTime() {
+      const now = new Date();
+      const isMobile = window.innerWidth <= 480;
+      const options = isMobile
+        ? { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+        : { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      document.getElementById('datetime').textContent = now.toLocaleString('en-US', options);
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      const mainContent = document.querySelector('.main-content');
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mainContent.classList.toggle('sidebar-active');
+    }
+
+    function setActiveSidebarItem() {
+      const sidebarItems = document.querySelectorAll('.sidebar ul li a');
+      const currentPage = window.location.pathname.split('/').pop() || 'feedback.html';
+      sidebarItems.forEach(item => {
+        if (item.getAttribute('data-page') === currentPage && item.getAttribute('data-page') !== 'sheets') {
+          item.classList.add('active');
+        }
+        item.addEventListener('click', function() {
+          if (this.getAttribute('data-page') !== 'sheets') {
+            sidebarItems.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            toggleSidebar();
+          }
+        });
+      });
+    }
+
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('d-block');
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function hideModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('show');
+      setTimeout(() => modal.classList.remove('d-block'), 300);
+    }
+
+    function showLogoutModal() { showModal('logoutModal'); }
+    function hideLogoutModal() { hideModal('logoutModal'); }
+    function showSheetsModal() { showModal('sheetsModal'); }
+    function hideSheetsModal() { hideModal('sheetsModal'); }
+
+    function performLogout() {
+      localStorage.clear();
+      window.location.replace(LOGIN_URL);
+    }
+
+    // Prevent back navigation
+    window.history.pushState(null, null, window.location.href);
+    window.addEventListener('popstate', function() {
+      if (!checkAuth()) {
+        window.location.replace(LOGIN_URL);
+      }
+    });
+
+    // Additional back button prevention
+    window.addEventListener('load', function() {
+      if (!checkAuth()) {
+        window.history.pushState(null, null, LOGIN_URL);
+      }
+    });
+
+    window.onpageshow = function(event) {
+      if (event.persisted) {
+        if (!checkAuth()) {
+          window.location.replace(LOGIN_URL);
+        }
+      }
+    };
+
+    function fetchFeedback() {
+      const existingScript = document.getElementById('jsonp-script');
+      if (existingScript) existingScript.remove();
+      const script = document.createElement('script');
+      script.id = 'jsonp-script';
+      script.src = `${API_URL}?action=getData&callback=handleFeedbackData`;
+      script.onerror = () => {
+        document.getElementById('feedbackTable').innerHTML = '<tr><td colspan="7">Error loading feedback</td></tr>';
+        console.error('Failed to load feedback data');
+      };
+      document.head.appendChild(script);
+    }
+
+    window.handleFeedbackData = function(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        document.getElementById('feedbackTable').innerHTML = '<tr><td colspan="7">No feedback found</td></tr>';
+        return;
+      }
+      allFeedback = data.map(row => ({
+        timestamp: row[0],
+        name: row[1],
+        contact: row[2],
+        guestType: row[3],
+        purpose: row[7],
+        quality: row[8],
+        attitude: row[9],
+        comments: row[10]
+      }));
+      filterFeedback();
+    };
+
+    function populateTable(feedback) {
+      const tbody = document.getElementById('feedbackTable');
+      tbody.innerHTML = feedback.length === 0
+        ? '<tr><td colspan="7" class="text-center">No matching feedback found</td></tr>'
+        : feedback.map(item => `
+          <tr>
+            <td>${new Date(item.timestamp).toLocaleString()}</td>
+            <td>${item.name || ''}</td>
+            <td>${item.guestType || ''}</td>
+            <td>${item.purpose || ''}</td>
+            <td>${item.quality || ''}</td>
+            <td>${item.attitude || ''}</td>
+            <td>${item.comments || ''}</td>
+          </tr>
+        `).join('');
+    }
+
+    function filterFeedback() {
+      const month = document.getElementById('monthFilter').value;
+      const year = document.getElementById('yearFilter').value;
+      const guestType = document.getElementById('guestTypeFilter').value;
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      let filteredFeedback = [...allFeedback];
+
+      if (month) filteredFeedback = filteredFeedback.filter(item => new Date(item.timestamp).getMonth() + 1 === parseInt(month));
+      if (year) filteredFeedback = filteredFeedback.filter(item => new Date(item.timestamp).getFullYear() === parseInt(year));
+      if (guestType) filteredFeedback = filteredFeedback.filter(item => item.guestType.toLowerCase() === guestType.toLowerCase());
+      if (searchTerm) filteredFeedback = filteredFeedback.filter(item => 
+        [item.name, item.contact, item.purpose, item.comments].some(val => (val || '').toLowerCase().includes(searchTerm))
+      );
+
+      populateTable(filteredFeedback);
+    }
+  </script>
+</body>
+</html>
