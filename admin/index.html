@@ -25,12 +25,22 @@
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            animation: slideUp 0.5s ease-out;
+            animation: slideIn 0.7s ease-out forwards;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            0% { 
+                opacity: 0; 
+                transform: translateY(50px) scale(0.95); 
+            }
+            70% { 
+                opacity: 1; 
+                transform: translateY(-10px) scale(1.02); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
 
         .form-control {
@@ -87,6 +97,25 @@
             border-radius: 2px;
         }
 
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #4CAF50;
+        }
+
         @media (max-width: 576px) {
             .login-container {
                 padding: 1.5rem;
@@ -106,8 +135,9 @@
             <div class="mb-4">
                 <input type="text" class="form-control" id="adminUsername" placeholder="Username" required>
             </div>
-            <div class="mb-4">
+            <div class="mb-4 password-container">
                 <input type="password" class="form-control" id="adminPassword" placeholder="Password" required>
+                <span class="toggle-password" onclick="togglePassword()">Show</span>
             </div>
             <div class="d-grid">
                 <button type="submit" class="btn btn-login text-white">Login</button>
@@ -187,6 +217,19 @@
                 console.error('Login failed:', data);
             }
         };
+
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('adminPassword');
+            const toggleText = document.querySelector('.toggle-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleText.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                toggleText.textContent = 'Show';
+            }
+        }
 
         // Prevent back navigation to dashboard after logout
         window.addEventListener('load', function() {
