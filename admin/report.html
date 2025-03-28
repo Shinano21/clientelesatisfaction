@@ -208,7 +208,7 @@
       transform: scale(0.95);
       transition: transform 0.3s ease;
       padding: 1.5rem;
-      max-width: 500px;
+      max-width: 500px Six;
       width: 90%;
       background: white;
     }
@@ -293,6 +293,7 @@
   <div class="main-content" id="mainContent">
     <div class="report-container">
       <h2 class="text-center mb-4">Feedback Statistics</h2>
+      <p class="text-center">Total Feedback Entries: <span id="totalFeedback">0</span></p>
       <div id="charts">
         <div class="chart-container">
           <canvas id="guestTypeChart" aria-label="Guest Type Distribution Chart"></canvas>
@@ -474,6 +475,9 @@
     };
 
     function generateReport() {
+      // Display the total number of feedback entries
+      document.getElementById('totalFeedback').textContent = allFeedback.length;
+
       const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
