@@ -302,7 +302,6 @@
       <li><a href="dashboard.html" data-page="dashboard.html"><i class="bi bi-house-door"></i> Dashboard</a></li>
       <li><a href="report.html" data-page="report.html"><i class="bi bi-bar-chart"></i> Report</a></li>
       <li><a href="feedback.html" data-page="feedback.html"><i class="bi bi-chat-dots"></i> Feedback</a></li>
-      <li><a href="#" onclick="showSheetsModal()" data-page="sheets"><i class="bi bi-table"></i> Sheets</a></li>
       <li><a href="#" class="logout-btn" onclick="showLogoutModal()"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
     </ul>
   </div>
@@ -362,6 +361,7 @@
             <tr>
               <th>Timestamp</th>
               <th>Name</th>
+              <th>Contact</th>
               <th>Guest Type</th>
               <th>Purpose</th>
               <th>Quality</th>
@@ -382,18 +382,6 @@
       <div class="modal-buttons">
         <button class="modal-button confirm-btn btn btn-danger" onclick="performLogout()">Yes</button>
         <button class="modal-button cancel-btn btn btn-secondary" onclick="hideLogoutModal()">No</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Sheets Access Modal -->
-  <div id="sheetsModal" class="modal">
-    <div class="modal-content">
-      <p class="mb-2">Please contact your local administrator for access to the Sheets:</p>
-      <p class="mb-1"><strong>Email:</strong> admin@example.com</p>
-      <p class="mb-4"><strong>Mobile Number:</strong> 123-456-7890</p>
-      <div class="modal-buttons">
-        <button class="modal-button cancel-btn btn btn-secondary" onclick="hideSheetsModal()">Close</button>
       </div>
     </div>
   </div>
@@ -458,15 +446,13 @@
       const sidebarItems = document.querySelectorAll('.sidebar ul li a');
       const currentPage = window.location.pathname.split('/').pop() || 'feedback.html';
       sidebarItems.forEach(item => {
-        if (item.getAttribute('data-page') === currentPage && item.getAttribute('data-page') !== 'sheets') {
+        if (item.getAttribute('data-page') === currentPage) {
           item.classList.add('active');
         }
         item.addEventListener('click', function() {
-          if (this.getAttribute('data-page') !== 'sheets') {
-            sidebarItems.forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-            toggleSidebar();
-          }
+          sidebarItems.forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          toggleSidebar();
         });
       });
     }
@@ -485,8 +471,6 @@
 
     function showLogoutModal() { showModal('logoutModal'); }
     function hideLogoutModal() { hideModal('logoutModal'); }
-    function showSheetsModal() { showModal('sheetsModal'); }
-    function hideSheetsModal() { hideModal('sheetsModal'); }
 
     function performLogout() {
       localStorage.clear();
@@ -523,7 +507,7 @@
       script.id = 'jsonp-script';
       script.src = `${API_URL}?action=getData&callback=handleFeedbackData`;
       script.onerror = () => {
-        document.getElementById('feedbackTable').innerHTML = '<tr><td colspan="7">Error loading feedback</td></tr>';
+        document.getElementById('feedbackTable').innerHTML = '<tr><td colspan="8">Error loading feedback</td></tr>';
         console.error('Failed to load feedback data');
       };
       document.head.appendChild(script);
@@ -531,7 +515,7 @@
 
     window.handleFeedbackData = function(data) {
       if (!Array.isArray(data) || data.length === 0) {
-        document.getElementById('feedbackTable').innerHTML = '<tr><td colspan="7">No feedback found</td></tr>';
+        document.getElementById('feedbackTable').innerHTML = '<tr><td colspan="8">No feedback found</td></tr>';
         return;
       }
       allFeedback = data.map(row => ({
@@ -550,11 +534,12 @@
     function populateTable(feedback) {
       const tbody = document.getElementById('feedbackTable');
       tbody.innerHTML = feedback.length === 0
-        ? '<tr><td colspan="7" class="text-center">No matching feedback found</td></tr>'
+        ? '<tr><td colspan="8" class="text-center">No matching feedback found</td></tr>'
         : feedback.map(item => `
           <tr>
             <td>${new Date(item.timestamp).toLocaleString()}</td>
             <td>${item.name || ''}</td>
+            <td>${item.contact || ''}</td>
             <td>${item.guestType || ''}</td>
             <td>${item.purpose || ''}</td>
             <td>${item.quality || ''}</td>
