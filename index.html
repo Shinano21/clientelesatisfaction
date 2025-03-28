@@ -149,6 +149,10 @@
             cursor: pointer;
         }
 
+        .form-check-input.is-invalid {
+            border-color: #dc3545;
+        }
+
         .form-check-label {
             margin-left: 8px;
             font-size: 16px;
@@ -269,7 +273,7 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Purpose of Visit (select all that apply):</label>
+                <label class="form-label required">Purpose of Visit (select at least one):</label>
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" name="purpose" value="Application for an insurance claim" id="purpose1">
                     <label class="form-check-label" for="purpose1">Application for an insurance claim</label>
@@ -311,6 +315,7 @@
                     <label class="form-check-label" for="purposeOthers">Others (please specify):</label>
                     <input type="text" class="form-control mt-2" name="otherPurpose">
                 </div>
+                <div class="invalid-feedback" id="purposeError">Please select at least one purpose of visit.</div>
             </div>
 
             <div class="mb-3">
@@ -433,14 +438,12 @@
         function validateContact(contact) {
             const phoneRegex = /^\d{11}$/; // Exactly 11 digits
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format with @
+            return phoneRegex.test(contact) || emailRegex.test(contact);
+        }
 
-            if (phoneRegex.test(contact)) {
-                return true; // Valid phone number
-            } else if (emailRegex.test(contact)) {
-                return true; // Valid email
-            } else {
-                return false; // Invalid
-            }
+        function validatePurpose() {
+            const purposes = document.querySelectorAll('input[name="purpose"]:checked');
+            return purposes.length > 0;
         }
 
         function submitForm(event) {
@@ -449,6 +452,8 @@
             const submitButton = document.getElementById('submitButton');
             const contactInput = document.getElementsByName('contact')[0];
             const contactError = document.getElementById('contactError');
+            const purposeCheckboxes = document.querySelectorAll('input[name="purpose"]');
+            const purposeError = document.getElementById('purposeError');
 
             // Validate contact
             const contactValue = contactInput.value.trim();
@@ -461,6 +466,18 @@
             } else {
                 contactInput.classList.remove('is-invalid');
                 contactError.textContent = '';
+            }
+
+            // Validate purpose
+            if (!validatePurpose()) {
+                purposeCheckboxes.forEach(checkbox => checkbox.classList.add('is-invalid'));
+                purposeError.style.display = 'block';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit';
+                return;
+            } else {
+                purposeCheckboxes.forEach(checkbox => checkbox.classList.remove('is-invalid'));
+                purposeError.style.display = 'none';
             }
 
             // Disable button and show submitting state
@@ -502,7 +519,7 @@
                 });
         }
 
-        // Real-time validation
+        // Real-time validation for contact
         document.getElementsByName('contact')[0].addEventListener('input', function() {
             const contactError = document.getElementById('contactError');
             if (!validateContact(this.value.trim())) {
@@ -512,6 +529,21 @@
                 this.classList.remove('is-invalid');
                 contactError.textContent = '';
             }
+        });
+
+        // Real-time validation for purpose
+        document.querySelectorAll('input[name="purpose"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const purposeCheckboxes = document.querySelectorAll('input[name="purpose"]');
+                const purposeError = document.getElementById('purposeError');
+                if (validatePurpose()) {
+                    purposeCheckboxes.forEach(cb => cb.classList.remove('is-invalid'));
+                    purposeError.style.display = 'none';
+                } else {
+                    purposeCheckboxes.forEach(cb => cb.classList.add('is-invalid'));
+                    purposeError.style.display = 'block';
+                }
+            });
         });
     </script>
 </body>
