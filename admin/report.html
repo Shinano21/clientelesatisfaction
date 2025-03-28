@@ -17,7 +17,7 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
+  
     .overlay {
       position: fixed;
       top: 0;
@@ -34,7 +34,7 @@
       opacity: 1;
       pointer-events: auto;
     }
-
+  
     .navbar {
       background: linear-gradient(90deg, #343a40, #495057);
       padding: 1.25rem 1.5rem;
@@ -45,24 +45,24 @@
       justify-content: space-between;
       align-items: center;
     }
-
+  
     .navbar-brand {
       display: flex;
       align-items: center;
       gap: 1.25rem;
     }
-
+  
     .navbar-brand h1 {
       font-size: 1.5rem;
       margin: 0;
       color: white;
       transition: transform 0.3s ease;
     }
-
+  
     .navbar-brand:hover h1 {
       transform: scale(1.05);
     }
-
+  
     .toggle-btn {
       color: white;
       font-size: 1.5rem;
@@ -71,17 +71,17 @@
       padding: 0.5rem;
       transition: transform 0.3s ease;
     }
-
+  
     .toggle-btn:hover {
       transform: rotate(90deg);
     }
-
+  
     .datetime {
       color: white;
       font-size: 0.9rem;
       padding: 0.5rem;
     }
-
+  
     .sidebar {
       position: fixed;
       top: 0;
@@ -94,27 +94,27 @@
       z-index: 1000;
       overflow-y: auto;
     }
-
+  
     .sidebar.active {
       left: 0;
     }
-
+  
     .sidebar-header {
       padding: 1.75rem 1.5rem;
       background: #f8f9fa;
       border-bottom: 1px solid #eee;
     }
-
+  
     .sidebar ul {
       padding: 1.5rem;
       margin: 0;
       list-style: none;
     }
-
+  
     .sidebar ul li {
       margin: 0.75rem 0;
     }
-
+  
     .sidebar ul li a {
       color: #333;
       padding: 0.85rem 1.25rem;
@@ -125,30 +125,28 @@
       transition: all 0.3s ease;
       font-size: 1rem;
     }
-
+  
     .sidebar ul li a i {
       margin-right: 1rem;
       font-size: 1.2rem;
     }
-
+  
     .sidebar ul li a:hover,
     .sidebar ul li a.active {
       background-color: #007bff;
       color: white;
       transform: translateX(5px);
     }
-
+  
     .main-content {
       padding: 2.5rem;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 1;
+      transition: margin-left 0.3s ease;
     }
-
+  
     .main-content.sidebar-active {
       margin-left: 280px;
     }
-
+  
     .report-container {
       background: white;
       padding: 2.5rem;
@@ -156,12 +154,12 @@
       box-shadow: 0 5px 20px rgba(0,0,0,0.05);
       animation: fadeIn 0.5s ease-out;
     }
-
+  
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
+  
     .chart-container {
       position: relative;
       margin: 2.5rem 0;
@@ -170,90 +168,99 @@
       border-radius: 10px;
       transition: transform 0.3s ease;
     }
-
+  
     .chart-container:hover {
       transform: scale(1.02);
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-
+  
     canvas {
       max-width: 100%;
       height: 300px !important;
     }
-
+  
     .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1002;
+    }
+  
+    .modal.show {
+      display: flex;
       animation: fadeInModal 0.3s ease-out;
     }
-
+  
     @keyframes fadeInModal {
       from { opacity: 0; }
       to { opacity: 1; }
     }
-
+  
     .modal-content {
       border-radius: 15px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       transform: scale(0.95);
       transition: transform 0.3s ease;
       padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+      background: white;
     }
-
+  
     .modal.show .modal-content {
       transform: scale(1);
     }
-
+  
     .modal-button {
       transition: all 0.3s ease;
       margin: 0.5rem;
     }
-
+  
     .modal-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-
+  
+    .error-message {
+      color: #dc3545;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  
     @media (max-width: 768px) {
       .sidebar {
         width: 260px;
         left: -260px;
       }
-
-      .main-content {
-        padding: 1.5rem;
-      }
-
+  
       .main-content.sidebar-active {
         margin-left: 260px;
       }
-
+  
       .navbar-brand h1 {
         font-size: 1.2rem;
       }
-
+  
       .toggle-btn {
         font-size: 1.3rem;
       }
-
-      .report-container {
+  
+      .report-container, .chart-container {
         padding: 1.5rem;
       }
-
-      .chart-container {
-        padding: 1rem;
-        margin: 1.5rem 0;
-      }
     }
-
+  
     @media (max-width: 480px) {
-      .report-container {
+      .report-container, .chart-container {
         padding: 1rem;
       }
-
-      .chart-container {
-        padding: 0.75rem;
-        margin: 1rem 0;
-      }
-
+  
       .navbar {
         padding: 1rem;
       }
@@ -263,19 +270,19 @@
 <body>
   <div class="navbar">
     <div class="navbar-brand">
-      <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+      <button class="toggle-btn" aria-label="Toggle Sidebar" onclick="toggleSidebar()">☰</button>
       <h1>Feedback Report</h1>
     </div>
     <div class="datetime" id="datetime"></div>
   </div>
 
-  <div class="sidebar" id="sidebar">
+  <div class="sidebar" id="sidebar" aria-label="Navigation Menu">
     <div class="sidebar-header">
       <h3 style="margin: 0; color: #333;">Menu</h3>
     </div>
     <ul class="list-unstyled">
       <li><a href="dashboard.html" data-page="dashboard.html"><i class="bi bi-house-door"></i> Dashboard</a></li>
-      <li><a href="report.html" data-page="report.html"><i class="bi bi-bar-chart"></i> Report</a></li>
+      <li><a href="report.html" data-page="report.html" aria-current="page"><i class="bi bi-bar-chart"></i> Report</a></li>
       <li><a href="#" onclick="showSheetsModal()" data-page="sheets"><i class="bi bi-table"></i> Sheets</a></li>
       <li><a href="#" class="logout-btn" onclick="showLogoutModal()"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
     </ul>
@@ -283,52 +290,57 @@
 
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-  <div class="main-content">
+  <div class="main-content" id="mainContent">
     <div class="report-container">
       <h2 class="text-center mb-4">Feedback Statistics</h2>
-      <div class="chart-container">
-        <canvas id="guestTypeChart"></canvas>
+      <div id="charts">
+        <div class="chart-container">
+          <canvas id="guestTypeChart" aria-label="Guest Type Distribution Chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="studentYearLevelChart" aria-label="Students by Year Level Chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="studentCourseChart" aria-label="Students by Course Chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="studentCollegeChart" aria-label="Students by College Chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="purposeChart" aria-label="Purpose of Visit Chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="qualityChart" aria-label="Quality of Service Ratings Chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="attitudeChart" aria-label="Attitude of Personnel Ratings Chart"></canvas>
+        </div>
       </div>
-      <div class="chart-container">
-        <canvas id="studentYearLevelChart"></canvas>
-      </div>
-      <div class="chart-container">
-        <canvas id="studentCourseChart"></canvas>
-      </div>
-      <div class="chart-container">
-        <canvas id="studentCollegeChart"></canvas>
-      </div>
-      <div class="chart-container">
-        <canvas id="purposeChart"></canvas>
-      </div>
-      <div class="chart-container">
-        <canvas id="qualityChart"></canvas>
-      </div>
-      <div class="chart-container">
-        <canvas id="attitudeChart"></canvas>
-      </div>
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
     </div>
   </div>
 
   <!-- Logout Modal -->
-  <div id="logoutModal" class="modal">
+  <div id="logoutModal" class="modal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
     <div class="modal-content">
+      <h5 id="logoutModalLabel" class="mb-3">Confirm Logout</h5>
       <p class="mb-4">Are you sure you want to logout?</p>
-      <div class="modal-buttons">
-        <button class="modal-button confirm-btn btn btn-danger" onclick="performLogout()">Yes</button>
-        <button class="modal-button cancel-btn btn btn-secondary" onclick="hideLogoutModal()">No</button>
+      <div class="modal-buttons d-flex justify-content-center">
+        <button class="modal-button btn btn-danger" onclick="performLogout()">Yes</button>
+        <button class="modal-button btn btn-secondary" onclick="hideLogoutModal()">No</button>
       </div>
     </div>
   </div>
 
   <!-- Sheets Access Modal -->
-  <div id="sheetsModal" class="modal">
+  <div id="sheetsModal" class="modal" tabindex="-1" aria-labelledby="sheetsModalLabel" aria-hidden="true">
     <div class="modal-content">
+      <h5 id="sheetsModalLabel" class="mb-3">Sheets Access</h5>
       <p class="mb-2">Please contact your local administrator for access to the Sheets:</p>
       <p class="mb-1"><strong>Email:</strong> admin@example.com</p>
       <p class="mb-4"><strong>Mobile Number:</strong> 123-456-7890</p>
-      <div class="modal-buttons">
-        <button class="modal-button cancel-btn btn btn-secondary" onclick="hideSheetsModal()">Close</button>
+      <div class="modal-buttons d-flex justify-content-center">
+        <button class="modal-button btn btn-secondary" onclick="hideSheetsModal()">Close</button>
       </div>
     </div>
   </div>
@@ -339,14 +351,13 @@
     const LOGIN_URL = 'index.html';
     let allFeedback = [];
 
-    document.addEventListener('DOMContentLoaded', checkAuth);
-
-    window.onload = function() {
-      fetchFeedback();
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
       updateDateTime();
       setInterval(updateDateTime, 1000);
       setActiveSidebarItem();
-    };
+      fetchFeedback();
+    });
 
     function checkAuth() {
       if (localStorage.getItem('authToken') !== 'loggedIn') {
@@ -366,7 +377,7 @@
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('overlay');
-      const mainContent = document.querySelector('.main-content');
+      const mainContent = document.getElementById('mainContent');
       sidebar.classList.toggle('active');
       overlay.classList.toggle('active');
       mainContent.classList.toggle('sidebar-active');
@@ -379,8 +390,8 @@
         if (item.getAttribute('data-page') === currentPage && item.getAttribute('data-page') !== 'sheets') {
           item.classList.add('active');
         }
-        item.addEventListener('click', function() {
-          if (this.getAttribute('data-page') !== 'sheets') {
+        item.addEventListener('click', function(e) {
+          if (this.getAttribute('data-page') !== 'sheets' && !this.classList.contains('logout-btn')) {
             sidebarItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
             toggleSidebar();
@@ -391,14 +402,16 @@
 
     function showModal(modalId) {
       const modal = document.getElementById(modalId);
-      modal.classList.add('d-block');
-      setTimeout(() => modal.classList.add('show'), 10);
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
     }
 
     function hideModal(modalId) {
       const modal = document.getElementById(modalId);
       modal.classList.remove('show');
-      setTimeout(() => modal.classList.remove('d-block'), 300);
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = 'auto';
     }
 
     function showLogoutModal() { showModal('logoutModal'); }
@@ -411,8 +424,20 @@
       window.location.replace(LOGIN_URL);
     }
 
-    window.history.pushState(null, null, window.location.href);
     window.addEventListener('popstate', checkAuth);
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      document.getElementById('charts').style.display = 'none';
+    }
+
+    function hideError() {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.style.display = 'none';
+      document.getElementById('charts').style.display = 'block';
+    }
 
     function fetchFeedback() {
       const existingScript = document.getElementById('jsonp-script');
@@ -420,19 +445,16 @@
       const script = document.createElement('script');
       script.id = 'jsonp-script';
       script.src = `${API_URL}?action=getData&callback=handleFeedbackData`;
-      script.onerror = () => {
-        console.error('Error loading feedback data');
-        alert('Error loading feedback data');
-      };
+      script.onerror = () => showError('Failed to load feedback data. Please try again later.');
       document.head.appendChild(script);
     }
 
     window.handleFeedbackData = function(data) {
       if (!Array.isArray(data) || data.length === 0) {
-        alert('No feedback data available');
+        showError('No feedback data available.');
         return;
       }
-      // Remove data.slice(1) since GAS already excludes headers
+      hideError();
       allFeedback = data.map(row => ({
         timestamp: row[0],
         name: row[1],
@@ -441,10 +463,12 @@
         yearLevel: row[4] || '',
         course: row[5] || '',
         college: row[6] || '',
-        purpose: row[7],
-        quality: row[8],
-        attitude: row[9],
-        comments: row[10]
+        purpose: row[7] || '',
+        quality: parseInt(row[8]) || 0,
+        attitude: parseInt(row[9]) || 0,
+        commentation: row[10] || '',
+        suggestion: row[11] || '',
+        complaint: row[12] || ''
       }));
       generateReport();
     };
@@ -455,7 +479,8 @@
         maintainAspectRatio: false,
         plugins: {
           legend: { position: 'top' },
-          title: { display: true, font: { size: 16 } }
+          title: { display: true, font: { size: 16 } },
+          tooltip: { enabled: true }
         },
         animation: {
           duration: 1000,
@@ -475,7 +500,7 @@
             backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
           }]
         },
-        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Guest Type Distribution' } } }
+        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { text: 'Guest Type Distribution' } } }
       });
 
       // Student Details
@@ -499,7 +524,7 @@
             backgroundColor: '#36A2EB'
           }]
         },
-        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Students by Year Level' } } }
+        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { text: 'Students by Year Level' } } }
       });
 
       new Chart(document.getElementById('studentCourseChart'), {
@@ -512,7 +537,7 @@
             backgroundColor: '#FF6384'
           }]
         },
-        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Students by Course' } } }
+        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { text: 'Students by Course' } } }
       });
 
       new Chart(document.getElementById('studentCollegeChart'), {
@@ -525,19 +550,32 @@
             backgroundColor: '#FFCE56'
           }]
         },
-        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Students by College' } } }
+        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { text: 'Students by College' } } }
       });
 
       // Purpose of Visit
-      const purposes = {
-        'file application for scholarship': 0, 'file application for loan': 0, 'file application for insurance claim': 0,
-        'id printing': 0, 'id re-printing': 0, 'submit request approval for travel': 0,
-        'file accredited/re-accreditation of organization': 0, 'inquire about': 0, 'for consultation': 0, 'others': 0
-      };
+      const purposeOptions = [
+        'Application for an insurance claim',
+        'Application for accreditation/re-accreditation of an organization',
+        'Submission of a request for approval of an off-campus activity',
+        'Submission of a request for approval of an on-campus activity',
+        'ID printing',
+        'ID re-printing',
+        'Inquire about',
+        'For consultation',
+        'OJT/RLE/Work Integrated Learning/Practicum',
+        'Others'
+      ];
+      const purposes = {};
+      purposeOptions.forEach(p => purposes[p] = 0);
       allFeedback.forEach(f => {
         if (f.purpose) {
-          Object.keys(purposes).forEach(p => {
-            if (f.purpose.includes(p)) purposes[p]++;
+          const purposeList = f.purpose.split(', ').map(p => p.trim());
+          purposeList.forEach(p => {
+            const basePurpose = p.startsWith('Others:') ? 'Others' : p;
+            if (purposes.hasOwnProperty(basePurpose)) {
+              purposes[basePurpose]++;
+            }
           });
         }
       });
@@ -551,15 +589,19 @@
             backgroundColor: '#4BC0C0'
           }]
         },
-        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Purpose of Visit' } } }
+        options: { 
+          ...chartOptions, 
+          plugins: { ...chartOptions.plugins, title: { text: 'Purpose of Visit' } },
+          scales: { x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } } }
+        }
       });
 
       // Quality and Attitude Ratings
       const qualityRatings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       const attitudeRatings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       allFeedback.forEach(f => {
-        if (f.quality) qualityRatings[f.quality]++;
-        if (f.attitude) attitudeRatings[f.attitude]++;
+        if (f.quality >= 1 && f.quality <= 5) qualityRatings[f.quality]++;
+        if (f.attitude >= 1 && f.attitude <= 5) attitudeRatings[f.attitude]++;
       });
 
       new Chart(document.getElementById('qualityChart'), {
@@ -571,7 +613,7 @@
             backgroundColor: ['#FF6384', '#FFCE56', '#36A2EB', '#4BC0C0', '#9966FF']
           }]
         },
-        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Quality of Service Ratings' } } }
+        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { text: 'Quality of Service Ratings' } } }
       });
 
       new Chart(document.getElementById('attitudeChart'), {
@@ -583,7 +625,7 @@
             backgroundColor: ['#FF6384', '#FFCE56', '#36A2EB', '#4BC0C0', '#9966FF']
           }]
         },
-        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Attitude of Personnel Ratings' } } }
+        options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { text: 'Attitude of Personnel Ratings' } } }
       });
     }
   </script>
