@@ -127,6 +127,10 @@
             outline: none;
         }
 
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
         .form-check-input {
             border: 2px solid #ced4da;
             border-radius: 3px;
@@ -216,8 +220,9 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label required">Contact Number:</label>
-                <input type="tel" class="form-control" name="contact" required>
+                <label class="form-label required">Contact Number/Email:</label>
+                <input type="text" class="form-control" name="contact" placeholder="09274528373 or halimbawa@gmail.com" required>
+                <div class="invalid-feedback" id="contactError"></div>
             </div>
 
             <div class="mb-3">
@@ -425,11 +430,39 @@
             });
         }
 
+        function validateContact(contact) {
+            const phoneRegex = /^\d{11}$/; // Exactly 11 digits
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format with @
+
+            if (phoneRegex.test(contact)) {
+                return true; // Valid phone number
+            } else if (emailRegex.test(contact)) {
+                return true; // Valid email
+            } else {
+                return false; // Invalid
+            }
+        }
+
         function submitForm(event) {
             event.preventDefault();
             const form = event.target;
             const submitButton = document.getElementById('submitButton');
-            
+            const contactInput = document.getElementsByName('contact')[0];
+            const contactError = document.getElementById('contactError');
+
+            // Validate contact
+            const contactValue = contactInput.value.trim();
+            if (!validateContact(contactValue)) {
+                contactInput.classList.add('is-invalid');
+                contactError.textContent = 'Please enter a valid 11-digit phone number or a valid email address (e.g., 09274528373 or halimbawa@gmail.com)';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit';
+                return;
+            } else {
+                contactInput.classList.remove('is-invalid');
+                contactError.textContent = '';
+            }
+
             // Disable button and show submitting state
             submitButton.disabled = true;
             submitButton.textContent = 'Submitting...';
@@ -468,6 +501,18 @@
                     document.getElementById('result').innerText = 'Error submitting feedback';
                 });
         }
+
+        // Real-time validation
+        document.getElementsByName('contact')[0].addEventListener('input', function() {
+            const contactError = document.getElementById('contactError');
+            if (!validateContact(this.value.trim())) {
+                this.classList.add('is-invalid');
+                contactError.textContent = 'Please enter a valid 11-digit phone number or a valid email address';
+            } else {
+                this.classList.remove('is-invalid');
+                contactError.textContent = '';
+            }
+        });
     </script>
 </body>
 </html>
