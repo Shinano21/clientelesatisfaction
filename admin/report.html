@@ -245,7 +245,7 @@
     <ul class="list-unstyled">
       <li><a href="dashboard.html" data-page="dashboard.html"><i class="bi bi-house-door"></i> Dashboard</a></li>
       <li><a href="report.html" data-page="report.html" aria-current="page"><i class="bi bi-bar-chart"></i> Report</a></li>
-      <li><a href="feedback.html" data-page="feedback.html"><i class="bi bi-chat-dots"></i> Feedback</a></li>
+      <li><a href="../index.html" data-page="feedback.html"><i class="bi bi-chat-dots"></i> Feedback</a></li>
       <li><a href="#" class="logout-btn" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
     </ul>
   </div>
@@ -366,14 +366,32 @@
       const sidebarItems = document.querySelectorAll('.sidebar ul li a');
       const currentPage = window.location.pathname.split('/').pop() || 'report.html';
       sidebarItems.forEach(item => {
+        // Set the active class for the current page
         if (item.getAttribute('data-page') === currentPage) {
           item.classList.add('active');
         }
+
+        // Add click event listener to each sidebar item
         item.addEventListener('click', function(e) {
-          if (!this.classList.contains('logout-btn')) {
-            sidebarItems.forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-            toggleSidebar();
+          // Handle logout separately
+          if (this.classList.contains('logout-btn')) {
+            return; // Let the logoutBtn event listener handle this
+          }
+
+          // Prevent default link behavior for navigation links
+          e.preventDefault();
+
+          // Remove active class from all items and add to the clicked item
+          sidebarItems.forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+
+          // Close the sidebar
+          toggleSidebar();
+
+          // Navigate to the page specified in the href attribute
+          const targetPage = this.getAttribute('href');
+          if (targetPage && targetPage !== '#') {
+            window.location.href = targetPage;
           }
         });
       });
