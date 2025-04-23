@@ -253,7 +253,7 @@
                 </div>
             </div>
 
-            <div id="studentFields" class="mb-3 collapse">
+            <div id="studentFields" class="mb-3 collapse" data-bs-toggle="collapse">
                 <div class="mb-3">
                     <label class="form-label">Year Level:</label>
                     <select class="form-control" name="yearLevel">
@@ -275,9 +275,13 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Course:</label>
-                    <select class="form-control" name="course" id="courseSelect">
+                    <select class="form-control" name="course" id="courseSelect" onchange="toggleOtherCourseField()">
                         <option value="">Select Course</option>
                     </select>
+                </div>
+                <div class="mb-3" style="display: none;">
+                    <label class="form-label">Other Course:</label>
+                    <input type="text" class="form-control" name="otherCourse" id="otherCourseInput">
                 </div>
             </div>
 
@@ -332,30 +336,30 @@
                 <div class="mb-2">
                     Quality of Service:
                     <div class="d-inline-block">
-                        <span class="emoji sad" onclick="setRating('quality', 1)">😞</span>
-                        <span class="emoji confused" onclick="setRating('quality', 2)">😕</span>
-                        <span class="emoji" onclick="setRating('quality', 3)">😐</span>
-                        <span class="emoji" onclick="setRating('quality', 4)">😊</span>
-                        <span class="emoji love" onclick="setRating('quality', 5)">😍</span>
+                        <span class="emoji sad" onclick="setRating('quality', 1)" aria-label="Very Poor">😞</span>
+                        <span class="emoji confused" onclick="setRating('quality', 2)" aria-label="Poor">😕</span>
+                        <span class="emoji" onclick="setRating('quality', 3)" aria-label="Neutral">😐</span>
+                        <span class="emoji" onclick="setRating('quality', 4)" aria-label="Good">😊</span>
+                        <span class="emoji love" onclick="setRating('quality', 5)" aria-label="Excellent">😍</span>
                         <input type="hidden" name="quality" id="qualityRating" required>
                     </div>
                 </div>
                 <div>
                     Attitude of Personnel:
                     <div class="d-inline-block">
-                        <span class="emoji sad" onclick="setRating('attitude', 1)">😞</span>
-                        <span class="emoji confused" onclick="setRating('attitude', 2)">😕</span>
-                        <span class="emoji" onclick="setRating('attitude', 3)">😐</span>
-                        <span class="emoji" onclick="setRating('attitude', 4)">😊</span>
-                        <span class="emoji love" onclick="setRating('attitude', 5)">😍</span>
+                        <span class="emoji sad" onclick="setRating('attitude', 1)" aria-label="Very Poor">😞</span>
+                        <span class="emoji confused" onclick="setRating('attitude', 2)" aria-label="Poor">😕</span>
+                        <span class="emoji" onclick="setRating('attitude', 3)" aria-label="Neutral">😐</span>
+                        <span class="emoji" onclick="setRating('attitude', 4)" aria-label="Good">😊</span>
+                        <span class="emoji love" onclick="setRating('attitude', 5)" aria-label="Excellent">😍</span>
                         <input type="hidden" name="attitude" id="attitudeRating" required>
                     </div>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Commentation:</label>
-                <textarea class="form-control" name="commentation" rows="3"></textarea>
+                <label class="form-label">Comments:</label>
+                <textarea class="form-control" name="comments" rows="3"></textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Suggestion:</label>
@@ -417,11 +421,30 @@
                     option.textContent = course;
                     courseSelect.appendChild(option);
                 });
+                // Add "Other" option
+                const otherOption = document.createElement('option');
+                otherOption.value = "Other";
+                otherOption.textContent = "Other";
+                courseSelect.appendChild(otherOption);
             }
+
+            // Hide other course input by default
+            toggleOtherCourseField();
         }
 
-        // Initialize college dropdown on page load
-        document.addEventListener('DOMContentLoaded', populateColleges);
+        // Show/hide the other course input field
+        function toggleOtherCourseField() {
+            const courseSelect = document.getElementById('courseSelect');
+            const otherCourseInput = document.getElementById('otherCourseInput');
+            if (courseSelect.value === "Other") {
+                otherCourseInput.parentElement.style.display = 'block';
+                otherCourseInput.required = true;
+            } else {
+                otherCourseInput.parentElement.style.display = 'none';
+                otherCourseInput.required = false;
+                otherCourseInput.value = ''; // Clear input when hidden
+            }
+        }
 
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbxDoSEBw6PylXZly7DW7-Wja6i0j2i_S_KihYiPQJse4HSnyhRhIiywVK3c7GuB2AcQ/exec';
 
@@ -438,6 +461,9 @@
                     element.value = '';
                 }
             });
+            // Reset other course input
+            document.getElementById('otherCourseInput').value = '';
+            toggleOtherCourseField();
         }
 
         function setRating(field, value) {
@@ -450,8 +476,8 @@
         }
 
         function validateContact(contact) {
-            const phoneRegex = /^\d{11}$/; // Exactly 11 digits
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format with @
+            const phoneRegex = /^\d{11}$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return phoneRegex.test(contact) || emailRegex.test(contact);
         }
 
@@ -504,6 +530,12 @@
             if (data.purpose.includes('Others')) data.purpose += `: ${data.otherPurpose || ''}`;
             delete data.otherPurpose;
 
+            // Handle course: use otherCourse if course is "Other"
+            if (data.course === "Other") {
+                data.course = data.otherCourse || '';
+            }
+            delete data.otherCourse;
+
             fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -520,7 +552,7 @@
                         emoji.style.opacity = '0.5';
                     });
                     toggleStudentFields(false);
-                    
+
                     // Show success modal
                     const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                     successModal.show();
@@ -559,6 +591,9 @@
                 }
             });
         });
+
+        // Initialize college dropdown on page load
+        document.addEventListener('DOMContentLoaded', populateColleges);
     </script>
 </body>
 </html>
